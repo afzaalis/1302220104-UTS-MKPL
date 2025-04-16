@@ -3,7 +3,7 @@
 - `TaxFunction.java`
 - `Employee.java`
 
-pada branch refactor/employee-tax-function terdapat 4 code smell yang saya deteksi dan saya refactor disana, list nya ada dibawah
+pada branch refactor/employee-tax-function terdapat 4-5 code smell yang saya deteksi dan saya refactor disana, list nya ada dibawah
 ---
 
 ## 🧾 1. TaxFunction.java
