@@ -1,90 +1,55 @@
+
 public class TaxFunction {
 
-    public static class Income {
-        private int monthlySalary;
-        private int otherMonthlyIncome;
+    // Konstanta untuk penghitungan pajak
+    private static final int BASIC_NONTAXABLE_INCOME = 54_000_000;
+    private static final int MARRIAGE_ALLOWANCE = 4_500_000;
+    private static final int CHILD_ALLOWANCE = 4_500_000;
+    private static final int MAX_CHILDREN_COUNT = 3;
+    private static final double TAX_RATE = 0.05;
 
-        public Income(int monthlySalary, int otherMonthlyIncome) {
-            this.monthlySalary = monthlySalary;
-            this.otherMonthlyIncome = otherMonthlyIncome;
+    private static final int MAX_MONTHS_IN_YEAR = 12;
+
+    /**
+     * Menghitung jumlah pajak penghasilan tahunan yang harus dibayar pegawai.
+     * 
+     * Pajak = 5% dari penghasilan bersih tahunan (gaji dan pendapatan lainnya dikalikan bulan kerja,
+     * dikurangi deductible) dikurangi penghasilan tidak kena pajak (PTKP).
+     * 
+     * PTKP:
+     * - Dasar: Rp 54.000.000
+     * - Tambahan jika menikah: Rp 4.500.000
+     * - Tambahan per anak (maks. 3): Rp 4.500.000 per anak
+     */
+    public static int calculateTax(int monthlySalary, int otherMonthlyIncome, int monthsWorked, int deductible,
+                                   boolean isMarried, int numberOfChildren) {
+
+        if (monthsWorked > MAX_MONTHS_IN_YEAR) {
+            System.err.println("Jumlah bulan bekerja tidak boleh lebih dari " + MAX_MONTHS_IN_YEAR + ".");
+            monthsWorked = MAX_MONTHS_IN_YEAR; // Default fallback
         }
 
-        public int getMonthlySalary() {
-            return monthlySalary;
+        // Batasi jumlah anak maksimal sesuai peraturan
+        int cappedChildren = Math.min(numberOfChildren, MAX_CHILDREN_COUNT);
+
+        // Hitung penghasilan tahunan dan penghasilan bersih
+        int annualIncome = (monthlySalary + otherMonthlyIncome) * monthsWorked;
+        int netIncome = annualIncome - deductible;
+
+        // Hitung penghasilan tidak kena pajak (PTKP)
+        int nonTaxableIncome = BASIC_NONTAXABLE_INCOME;
+        if (isMarried) {
+            nonTaxableIncome += MARRIAGE_ALLOWANCE;
+        }
+        nonTaxableIncome += cappedChildren * CHILD_ALLOWANCE;
+
+        // Hitung penghasilan kena pajak
+        int taxableIncome = netIncome - nonTaxableIncome;
+        if (taxableIncome < 0) {
+            taxableIncome = 0;
         }
 
-        public int getOtherMonthlyIncome() {
-            return otherMonthlyIncome;
-        }
-
-        public int getTotalIncomePerYear(int numberOfMonthWorking) {
-            return (monthlySalary + otherMonthlyIncome) * numberOfMonthWorking;
-        }
+        // Hitung pajak 5%
+        return (int) Math.round(TAX_RATE * taxableIncome);
     }
-
-    public static class WorkPeriod {
-        private int numberOfMonthWorking;
-
-        public WorkPeriod(int numberOfMonthWorking) {
-            if (numberOfMonthWorking > 12) {
-                System.err.println("More than 12 months working per year");
-            }
-            this.numberOfMonthWorking = Math.min(numberOfMonthWorking, 12); // Capping to 12 months
-        }
-
-        public int getNumberOfMonthWorking() {
-            return numberOfMonthWorking;
-        }
-    }
-
-    public static class FamilyStatus {
-        private boolean isMarried;
-        private int numberOfChildren;
-
-        public FamilyStatus(boolean isMarried, int numberOfChildren) {
-            this.isMarried = isMarried;
-            this.numberOfChildren = Math.min(numberOfChildren, 3); // Capping to 3 children
-        }
-
-        public boolean isMarried() {
-            return isMarried;
-        }
-
-        public int getNumberOfChildren() {
-            return numberOfChildren;
-        }
-
-        public int getTaxExemption() {
-            int exemption = 54000000; // Base exemption
-            if (isMarried) {
-                exemption += 4500000; // Additional for married
-            }
-            exemption += numberOfChildren * 4500000; // Additional for children
-            return exemption;
-        }
-    }
-
-    public static class TaxFunctions {
-
-        /**
-         * Fungsi untuk menghitung jumlah pajak penghasilan pegawai yang harus dibayarkan setahun.
-         *
-         * Pajak dihitung sebagai 5% dari penghasilan bersih tahunan (gaji dan pemasukan bulanan lainnya dikalikan jumlah bulan bekerja dikurangi pemotongan) dikurangi penghasilan tidak kena pajak.
-         *
-         * Jika pegawai belum menikah dan belum punya anak maka penghasilan tidak kena pajaknya adalah Rp 54.000.000.
-         * Jika pegawai sudah menikah maka penghasilan tidak kena pajaknya ditambah sebesar Rp 4.500.000.
-         * Jika pegawai sudah memiliki anak maka penghasilan tidak kena pajaknya ditambah sebesar Rp 4.500.000 per anak sampai anak ketiga.
-         */
-        public static int calculateTax(Income income, WorkPeriod workPeriod, int deductible, FamilyStatus familyStatus) {
-            int totalIncome = income.getTotalIncomePerYear(workPeriod.getNumberOfMonthWorking());
-            int taxExemption = familyStatus.getTaxExemption();
-
-            int taxableIncome = totalIncome - deductible - taxExemption;
-            int tax = (int) Math.round(0.05 * taxableIncome);
-
-            return Math.max(tax, 0); // Ensuring tax is non-negative
-        }
-    }
-
- 
 }
