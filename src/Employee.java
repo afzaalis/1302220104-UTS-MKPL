@@ -1,4 +1,3 @@
-package lib;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -52,24 +51,38 @@ public class Employee {
 	 * Jika pegawai adalah warga negara asing gaji bulanan diperbesar sebanyak 50%
 	 */
 	
-	public void setMonthlySalary(int grade) {	
-		if (grade == 1) {
-			monthlySalary = 3000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}else if (grade == 2) {
-			monthlySalary = 5000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}else if (grade == 3) {
-			monthlySalary = 7000000;
-			if (isForeigner) {
-				monthlySalary = (int) (3000000 * 1.5);
-			}
-		}
-	}
+	// Employee.java
+// Refactor: Duplicate Code (bad smell) removed
+// Issue: Pengulangan logika perhitungan salary untuk tiap grade dan isForeigner
+            public void setMonthlySalary(int grade) {    
+         if (grade == 1) {
+             monthlySalary = 3000000;
+             if (isForeigner) {
+                 monthlySalary = (int) (3000000 * 1.5);
+             }
+         } else if (grade == 2) {
+             monthlySalary = 5000000;
+             if (isForeigner) {
+                 monthlySalary = (int) (3000000 * 1.5);
+             }
+         } else if (grade == 3) {
+             monthlySalary = 7000000;
+             if (isForeigner) {
+                 monthlySalary = (int) (3000000 * 1.5);
+             }
+         }
+     }
+
+
+        private int getBaseSalaryForGrade(int grade) {
+            switch (grade) {
+                case 1: return 3000000;
+                case 2: return 5000000;
+                case 3: return 7000000;
+                default: throw new IllegalArgumentException("Invalid grade: " + grade);
+            }
+        }
+
 	
 	public void setAnnualDeductible(int deductible) {	
 		this.annualDeductible = deductible;
